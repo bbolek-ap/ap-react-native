@@ -1,118 +1,100 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import {Text, View} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import {createMaterialBottomTabNavigator} from 'react-native-paper/react-navigation';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import ProjectList from './pages/project-list.tsx';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+import {createStackNavigator} from '@react-navigation/stack';
+import ProjectDetails from './pages/project-details.tsx';
+import ProjectForm from './pages/project-form.tsx';
+import Toast from 'react-native-toast-message';
+import PhotosScreen from './pages/photos-screen.tsx';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+const Tab = createMaterialBottomTabNavigator();
+const Stack = createStackNavigator();
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const queryClient = new QueryClient();
+  const Settings = () => {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <Text style={{color: '#000000'}}>Settings!</Text>
+      </View>
+    );
+  };
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const ProjectsStack = () => {
+    return (
+      <Stack.Navigator>
+        <Stack.Screen
+          name="ProjectList"
+          component={ProjectList}
+          options={{title: 'Projects'}}
+        />
+        <Stack.Screen
+          name="ProjectDetails"
+          component={ProjectDetails}
+          options={{title: 'Project Details'}}
+        />
+        <Stack.Screen
+          name="ProjectForm"
+          component={ProjectForm}
+          options={{title: 'Edit Project'}}
+        />
+      </Stack.Navigator>
+    );
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
+        <NavigationContainer>
+          <Tab.Navigator
+            barStyle={{
+              backgroundColor: '#2d2d2d',
+              borderTopWidth: 1,
+              borderTopColor: '#444',
+              height: 120,
+              paddingTop: 5,
+            }}
+            labeled={false}
+            activeColor="#f0edf6"
+            inactiveColor="#929292">
+            <Tab.Screen
+              name="Projects"
+              component={ProjectsStack}
+              options={{
+                tabBarLabel: 'Projects',
+                tabBarIcon: ({color, focused}) => (
+                  <MaterialCommunityIcons
+                    name="home"
+                    color={focused ? '#000000' : color}
+                    size={28}
+                  />
+                ),
+              }}
+            />
+            <Tab.Screen
+              name="Photos"
+              component={PhotosScreen}
+              options={{
+                tabBarLabel: 'Settings',
+                tabBarIcon: ({color, focused}) => (
+                  <MaterialCommunityIcons
+                    name="cog"
+                    color={focused ? '#000000' : color}
+                    size={28}
+                  />
+                ),
+              }}
+            />
+          </Tab.Navigator>
+          <Toast />
+        </NavigationContainer>
+      </QueryClientProvider>
+    </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
-
 export default App;
